@@ -1,44 +1,55 @@
 package org.alterra.BookManagementApp;
 
+import org.alterra.data.Book;
 import org.alterra.data.Books;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @SpringBootApplication
 @RestController
+@ComponentScan("org.alterra")
 public class BookManagementAppApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BookManagementAppApplication.class, args);
-	}
+    @Autowired
+    private Books books;
 
-	Books books = new Books();
-	@GetMapping("/books")
-	public List<JSONObject> getAllBook() {
-		return books.getBooks();
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BookManagementAppApplication.class, args);
+    }
 
-	@PostMapping("/book")
-	public JSONObject addBook(@RequestParam(value = "judul") String title, @RequestParam(value="penulis") String author, @RequestParam(value="kategori") String category) {
-		return books.setBook(title, author, category);
-	}
+    @GetMapping("/books")
+    public List<JSONObject> getAllBook() {
+        return books.getBooks();
+    }
 
-	@GetMapping("/book")
-	public JSONObject getBookByID(@RequestParam(value = "id") String id) {
-		return books.getBookById(id);
-	}
+    @PostMapping(path = "/book", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<JSONObject> addBook(@RequestBody Book book) {
+        JSONObject response = books.setBook(book.getJudul(), book.getPenulis(), book.getKategori());
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
-	@PutMapping("/book")
-	public JSONObject updateBookByID(@RequestParam(value = "id") String id, @RequestParam(value = "judul") String title, @RequestParam(value="penulis") String author, @RequestParam(value="kategori") String category) {
-		return books.updateBook(id, title, author, category);
-	}
+    @GetMapping("/book")
+    public JSONObject getBookByID(@RequestParam(value = "id") String id) {
+        return books.getBookById(id);
+    }
 
-	@DeleteMapping("/book")
-	public JSONObject deleteBookByID(@RequestParam(value = "id") String id) {
-		return books.deleteBook(id);
-	}
+    @PutMapping(path = "/book/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<JSONObject> updateBook(@PathVariable("id") String id, @RequestBody Book book) {
+        JSONObject response = books.updateBook(id, book.getJudul(), book.getPenulis(), book.getKategori());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/book")
+    public JSONObject deleteBookByID(@RequestParam(value = "id") String id) {
+        return books.deleteBook(id);
+    }
 }

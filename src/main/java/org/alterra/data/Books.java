@@ -1,16 +1,23 @@
 package org.alterra.data;
 
 import org.json.simple.JSONObject;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@Component
 public class Books {
+    private static Books instance = new Books();
     private ArrayList<Book> books;
 
-    public Books() {
+    private Books() {
         this.books = new ArrayList<>();
+    }
+
+    public static Books getInstance() {
+        return instance;
     }
 
     public JSONObject setBook(String title, String author, String category) {
@@ -56,18 +63,18 @@ public class Books {
         return response;
     }
 
-    public JSONObject updateBook(String Id, String title, String author, String category) {
+    public JSONObject updateBook(String id, String title, String author, String category) {
         JSONObject response = new JSONObject();
         boolean bookFound = false;
-        for (Book book : books) {
-            if (book.getID().equals(Id)) {
-                book.setJudul(title);
-                book.setPenulis(author);
-                book.setKategori(category);
-                response.put("id", book.getID());
-                response.put("title", book.getJudul());
-                response.put("author", book.getPenulis());
-                response.put("category", book.getKategori());
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).getID().equals(id)) {
+                books.get(i).setJudul(title);
+                books.get(i).setPenulis(author);
+                books.get(i).setKategori(category);
+                response.put("id", id);
+                response.put("title", title);
+                response.put("author", author);
+                response.put("category", category);
                 bookFound = true;
                 break;
             }
